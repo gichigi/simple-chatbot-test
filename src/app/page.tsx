@@ -16,34 +16,38 @@ export default function Chat() {
 
   return (
     <div className="flex flex-col min-h-screen bg-white">
-      {/* Main content area */}
-      <main className="flex-1 flex flex-col max-w-3xl mx-auto w-full p-4">
-        {/* Chat header */}
-        <h1 className="text-3xl font-semibold text-center my-8">
-          What can I help with?
-        </h1>
-
-        {/* Messages container */}
-        <div className="flex-1 mb-8">
-          {messages.map((message) => (
-            <div
-              key={message.id}
-              className={`mb-4 ${
-                message.role === 'user' ? 'text-right' : 'text-left'
-              }`}
-            >
+      {/* Main content area - added justify-center for vertical centering */}
+      <main className="flex-1 flex flex-col max-w-3xl mx-auto w-full p-4 justify-center">
+        {/* Messages container - only show if there are messages */}
+        {messages.length > 0 && (
+          <div className="flex-1 mb-8">
+            {messages.map((message) => (
               <div
-                className={`inline-block max-w-[80%] px-4 py-2 rounded-lg ${
-                  message.role === 'user'
-                    ? 'bg-blue-500 text-white'
-                    : 'bg-gray-100 text-black'
+                key={message.id}
+                className={`mb-4 ${
+                  message.role === 'user' ? 'text-right' : 'text-left'
                 }`}
               >
-                {message.content}
+                <div
+                  className={`inline-block max-w-[80%] px-4 py-2 rounded-lg ${
+                    message.role === 'user'
+                      ? 'bg-blue-500 text-white'
+                      : 'bg-gray-100 text-black'
+                  }`}
+                >
+                  {message.content}
+                </div>
               </div>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        )}
+
+        {/* Only show header if there are no messages */}
+        {messages.length === 0 && (
+          <h1 className="text-3xl font-semibold text-center mb-8">
+            What can I help with?
+          </h1>
+        )}
 
         {/* Input form */}
         <div className="border border-gray-200 rounded-xl shadow-sm">
@@ -54,12 +58,12 @@ export default function Chat() {
                 onChange={handleInputChange}
                 placeholder="Ask anything"
                 rows={1}
-                className="w-full px-4 py-2 text-gray-900 bg-white border-0 resize-none focus:ring-0 focus:outline-none"
+                className="w-full pl-12 pr-4 py-2 text-gray-900 bg-white border-0 resize-none focus:ring-0 focus:outline-none"
                 style={{ minHeight: '44px' }}
               />
               
-              {/* File upload button */}
-              <div className="absolute bottom-2 left-2 flex items-center">
+              {/* File upload button - adjusted positioning and spacing */}
+              <div className="absolute left-4 top-1/2 transform -translate-y-1/2">
                 <label className="cursor-pointer">
                   <input
                     type="file"
@@ -81,12 +85,13 @@ export default function Chat() {
                     />
                   </svg>
                 </label>
-                {selectedFile && (
-                  <span className="ml-2 text-sm text-gray-500">
-                    {selectedFile.name}
-                  </span>
-                )}
               </div>
+              
+              {selectedFile && (
+                <span className="absolute left-12 top-1/2 transform -translate-y-1/2 ml-2 text-sm text-gray-500">
+                  {selectedFile.name}
+                </span>
+              )}
             </div>
 
             {/* Action buttons */}
