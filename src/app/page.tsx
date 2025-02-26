@@ -1,78 +1,101 @@
 'use client';
 
+import { useState } from 'react';
 import { useChat } from 'ai/react';
 import PromptSuggestions from './components/PromptSuggestions';
-import { useRef, useEffect } from 'react';
 
 export default function Chat() {
-  // Use the useChat hook for managing chat state
-  const { messages, input, handleInputChange, handleSubmit, setInput } = useChat();
-  
-  // Ref for chat container to enable auto-scroll
-  const chatContainerRef = useRef<HTMLDivElement>(null);
+  const { messages, input, handleInputChange, handleSubmit } = useChat();
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
 
-  // Auto-scroll to bottom when messages change
-  useEffect(() => {
-    if (chatContainerRef.current) {
-      chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      setSelectedFile(e.target.files[0]);
     }
-  }, [messages]);
-
-  // Handle prompt selection
-  const handlePromptSelect = (prompt: string) => {
-    setInput(prompt);
   };
 
   return (
-    <div className="flex flex-col h-screen bg-gray-900 text-white">
-      {/* Header */}
-      <header className="p-4 border-b border-gray-800">
-        <h1 className="text-xl font-bold">Copywriter&apos;s AI Assistant</h1>
-      </header>
+    <div className="flex flex-col min-h-screen bg-white">
+      {/* Main content area */}
+      <main className="flex-1 flex flex-col max-w-3xl mx-auto w-full p-4">
+        {/* Chat header */}
+        <h1 className="text-3xl font-semibold text-center my-8">
+          What can I help with?
+        </h1>
 
-      {/* Chat container */}
-      <div 
-        ref={chatContainerRef}
-        className="flex-1 overflow-y-auto p-4 space-y-4"
-      >
-        {messages.map((message) => (
-          <div
-            key={message.id}
-            className={`flex ${
-              message.role === 'user' ? 'justify-end' : 'justify-start'
-            }`}
-          >
+        {/* Messages container */}
+        <div className="flex-1 mb-8">
+          {messages.map((message) => (
             <div
-              className={`max-w-[80%] rounded-lg px-4 py-2 ${
-                message.role === 'user' 
-                  ? 'bg-blue-600' 
-                  : 'bg-gray-700'
+              key={message.id}
+              className={`mb-4 ${
+                message.role === 'user' ? 'text-right' : 'text-left'
               }`}
             >
-              {message.content}
+              <div
+                className={`inline-block max-w-[80%] px-4 py-2 rounded-lg ${
+                  message.role === 'user'
+                    ? 'bg-blue-500 text-white'
+                    : 'bg-gray-100 text-black'
+                }`}
+              >
+                {message.content}
+              </div>
             </div>
-          </div>
-        ))}
-      </div>
+          ))}
+        </div>
 
-      {/* Input form */}
-      <div className="border-t border-gray-800 p-4">
-        <PromptSuggestions onSelectPrompt={handlePromptSelect} />
-        <form onSubmit={handleSubmit} className="flex gap-2">
-          <input
-            value={input}
-            onChange={handleInputChange}
-            placeholder="Type your message..."
-            className="flex-1 bg-gray-800 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-          />
-          <button
-            type="submit"
-            className="bg-blue-600 px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"
-          >
-            Send
-          </button>
-        </form>
-      </div>
+        {/* Input form */}
+        <div className="border border-gray-200 rounded-xl shadow-sm">
+          <form onSubmit={handleSubmit} className="p-4">
+            <div className="relative">
+              <textarea
+                value={input}
+                onChange={handleInputChange}
+                placeholder="Ask anything"
+                rows={1}
+                className="w-full px-4 py-2 text-gray-900 bg-white border-0 resize-none focus:ring-0 focus:outline-none"
+                style={{ minHeight: '44px' }}
+              />
+              
+              {/* File upload button */}
+              <div className="absolute bottom-2 left-2 flex items-center">
+                <label className="cursor-pointer">
+                  <input
+                    type="file"
+                    className="hidden"
+                    onChange={handleFileChange}
+                    accept="image/*,.pdf,.doc,.docx"
+                  />
+                  <svg
+                    className="w-5 h-5 text-gray-500 hover:text-gray-700"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M12 4v16m8-8H4"
+                    />
+                  </svg>
+                </label>
+                {selectedFile && (
+                  <span className="ml-2 text-sm text-gray-500">
+                    {selectedFile.name}
+                  </span>
+                )}
+              </div>
+            </div>
+
+            {/* Action buttons */}
+            <div className="flex items-center justify-between mt-4">
+              <PromptSuggestions />
+            </div>
+          </form>
+        </div>
+      </main>
     </div>
   );
 }
